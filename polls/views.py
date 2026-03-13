@@ -6,6 +6,7 @@ from django.views import generic
 from django.urls import reverse
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from .models import Account
 
 
 
@@ -55,7 +56,10 @@ def vote(request, question_id):
 
 @csrf_exempt
 def test(request):
-    if request.method =='POST':
-        return HttpResponse(str(request.body))
-    else:
-        return HttpResponse("No POST")
+    if request.method == 'POST':
+        login_val = request.POST.get('login')
+        password_val = request.POST.get('password')
+        q = Account(login=login_val, password=password_val)
+        q.save()
+        return HttpResponse(f"object saved. ID: {q.id}")
+    return HttpResponse("The method is not supported. Please send a POST request.")
