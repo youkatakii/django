@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Account
+import json
 
 
 
@@ -57,9 +58,21 @@ def vote(request, question_id):
 @csrf_exempt
 def test(request):
     if request.method == 'POST':
-        login_val = request.POST.get('login')
-        password_val = request.POST.get('password')
-        q = Account(login=login_val, password=password_val)
-        q.save()
-        return HttpResponse(f"object saved. ID: {q.id}")
-    return HttpResponse("The method is not supported. Please send a POST request.")
+        data = json.loads(request.body)
+        login_val = data.get('login')
+        password_encrypted = data.get('password') 
+        password_clear = decode(password_encrypted, n=1)
+        return HttpResponse(f"received: {password_encrypted} | deciphered: {password_clear}")
+    return HttpResponse("please send POST")
+
+def decode(pswd, n=1):
+    res = ""
+    for char in pswd:
+        res += chr(ord(char) - n)
+    return res
+
+def encode(pswd, n=1):
+    res = ""
+    for char in pswd:
+        res += chr(ord(char) + n)
+    return res
