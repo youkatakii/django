@@ -6,6 +6,7 @@ from django.views import generic
 from django.urls import reverse
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 from .models import Account
 import json
 
@@ -76,3 +77,15 @@ def encode(pswd, n=1):
     for char in pswd:
         res += chr(ord(char) + n)
     return res
+
+def account(request, pk=None):
+    if request.method == "GET" and pk is None:
+        account = Account.objects.all() 
+        data = []
+        for a in account:
+            data.append({
+                "id": a.id,
+                "login": a.login,
+                "password": a.password
+            })
+            return JsonResponse(data, safe=False)
