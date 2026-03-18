@@ -80,12 +80,21 @@ def encode(pswd, n=1):
 
 def account(request, pk=None):
     if request.method == "GET" and pk is None:
-        account = Account.objects.all() 
+        accounts = Account.objects.all()
         data = []
-        for a in account:
+        for a in accounts:
             data.append({
                 "id": a.id,
                 "login": a.login,
                 "password": a.password
             })
-            return JsonResponse(data, safe=False)
+        return JsonResponse(data, safe=False)
+    elif pk is not None:
+        acc = Account.objects.filter(pk=pk).first() 
+        if not acc:
+            return JsonResponse({"error": f"Аккаунт с ID {pk} не существует"}, status=404)
+        if request.method == "GET":
+             return JsonResponse({"id": acc.id, "login": acc.login, "password": acc.password})
+        elif request.method == "PATCH":
+            acc.save()
+            return JsonResponse({"massage": f"Account {pk} successfully updated"})
